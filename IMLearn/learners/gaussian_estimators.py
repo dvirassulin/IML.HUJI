@@ -106,7 +106,7 @@ class UnivariateGaussian:
         log_likelihood: float
             log-likelihood calculated
         """
-        one_div_sqrt_two_pi_var_pow_dim = 1 / np.pow(np.sqrt(2 * np.pi * sigma), X.shape[0])
+        one_div_sqrt_two_pi_var_pow_dim = 1 / np.power(np.sqrt(2 * np.pi * sigma), X.shape[0])
         x_minus_mu_squared_sum = np.sum((X - mu)**2)
         minus_one_div_two_sigma = -1 / (2 * sigma)
         exponent = np.exp(minus_one_div_two_sigma * x_minus_mu_squared_sum)
@@ -156,7 +156,7 @@ class MultivariateGaussian:
         Then sets `self.fitted_` attribute to `True`
         """
         self.mu_ = X.mean(axis=0)
-        self.cov_ = np.cov(X)
+        self.cov_ = np.cov(X.T)
         self.fitted_ = True
         return self
 
