@@ -17,7 +17,7 @@ def test_univariate_gaussian():
     samples = np.random.normal(mu, sigma**2, (sample_size, ))
     estimator = UnivariateGaussian()
     estimator.fit(samples)
-    print((float_formatter(estimator.mu_), float_formatter(estimator.var_)))
+    print(estimator.mu_.round(3), estimator.var_.round(3))
 
     # Question 2 - Empirically showing sample mean is consistent
     samples_mean = []
@@ -85,6 +85,6 @@ def test_multivariate_gaussian():
 
 if __name__ == '__main__':
     np.random.seed(0)
-    # test_univariate_gaussian()
+    test_univariate_gaussian()
     test_multivariate_gaussian()
 
