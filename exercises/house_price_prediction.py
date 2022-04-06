@@ -23,7 +23,25 @@ def load_data(filename: str):
     Design matrix and response vector (prices) - either as a single
     DataFrame or a Tuple[DataFrame, Series]
     """
-    raise NotImplementedError()
+    df = pd.read_csv(filename, index_col=0)
+    df = df[df['price'] >= 0]
+    df = df[df['sqft_living'] >= 0]
+    df = df[df['sqft_lot'] >= 0]
+    df = df[df['sqft_above'] >= 0]
+    df = df[df['sqft_basement'] >= 0]
+    df = df[df['yr_built'] >= 0]
+    df = df[(df['yr_built'] <= df['yr_renovated']) | (df['yr_renovated'] == 0)]
+    df['built_new'] = df['yr_built'].apply(lambda x: 1 if x >= 1980 else 0)
+    df['renovated_new'] = df['yr_renovated'].apply(lambda x: 1 if x >= 1980 else 0)
+    df.drop(['date', 'yr_built', 'yr_renovated', 'lat', 'long', 'sqft_lot15', 'sqft_living15'], axis=1, inplace=True)
+    df.dropna(inplace=True)
+
+    zip_data_frame = pd.get_dummies(df['zipcode'])
+    zip_data_frame.drop(['0.0'], axis=1)
+    zip_data_frame = zip_data_frame.add_prefix("zip_")
+    df = pd.concat(df, zip_data_frame)
+    df.drop(['zipcode'], axis=1, inplace=True)
+    return df
 
 
 def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") -> NoReturn:
