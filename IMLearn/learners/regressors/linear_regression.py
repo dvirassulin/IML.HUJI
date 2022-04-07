@@ -50,10 +50,10 @@ class LinearRegression(BaseEstimator):
         -----
         Fits model with or without an intercept depending on value of `self.include_intercept_`
         """
-        local_X = X
         if self.include_intercept_:
-            local_X = np.c_(np.ones(X.shape[0]), X)
-        self.coefs_ = np.linalg.pinv(local_X) @ y
+            X = np.c_[np.ones(X.shape[0]), X]
+        self.coefs_ = np.linalg.pinv(X) @ y
+
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
