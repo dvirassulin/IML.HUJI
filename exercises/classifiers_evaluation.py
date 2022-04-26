@@ -1,3 +1,5 @@
+import numpy as np
+
 from IMLearn.learners.classifiers import Perceptron, LDA, GaussianNaiveBayes
 from typing import Tuple
 from utils import *
@@ -86,7 +88,7 @@ def compare_gaussian_classifiers():
     Fit both Gaussian Naive Bayes and LDA classifiers on both gaussians1 and gaussians2 datasets
     """
 
-    symbols = np.array(["circle", "x", "square"])
+    symbols = np.array(["circle", "star-diamond", "square"])
     for f in ["gaussian1.npy", "gaussian2.npy"]:
         # Load dataset
         X, y = load_dataset(f"../datasets/{f}")
@@ -109,13 +111,26 @@ def compare_gaussian_classifiers():
         # Plot a figure with two suplots, showing the Gaussian Naive Bayes predictions on the left and LDA predictions
         # on the right. Plot title should specify dataset used and subplot titles should specify algorithm and accuracy
         # Create subplots
-        fig = make_subplots(rows=2, cols=3, subplot_titles=[rf"$\textbf{{{m}}} Accuracy: {round(accuracy(y, pred), 2)}$"
+        fig = make_subplots(rows=2, cols=3, subplot_titles=[rf"$\textbf{{{m}}}  Accuracy: {round(accuracy(y, pred), 2)}$"
                                                             for m, pred in zip(model_names, predictions)],
                             horizontal_spacing=0.01, vertical_spacing=.03)
         for i, m in enumerate(models):
             fig.add_traces([go.Scatter(x=X[:, 0], y=X[:, 1], mode="markers", showlegend=False,
-                                marker=dict(color=predictions[i], symbol=symbols[y], colorscale=[custom[0], custom[-1]]))],
+                                marker=dict(color=predictions[i], symbol=symbols[y], colorscale=[custom[0], custom[-1]])),
+                            go.Scatter(x=m.mu_[:, 0], y=m.mu_[:, 1], mode="markers", showlegend=False,
+                                       marker=dict(color="black", symbol="x"))],
                                 rows=(i // 3) + 1, cols=(i % 3) + 1)
+            if isinstance(m, LDA):
+                fig.add_traces([get_ellipse(m.mu_[k], m.cov_) for k in range(m.mu_.shape[0])],
+                               rows=(i // 3) + 1, cols=(i % 3) + 1)
+            else:
+                fig.add_traces([get_ellipse(m.mu_[k], np.diag(m.vars_[k])) for k in range(m.mu_.shape[0])],
+                               rows=(i // 3) + 1, cols=(i % 3) + 1)
+
+        fig.update_layout(title=rf"$\textbf{{{f} Dataset}}$",
+                          margin=dict(t=100)) \
+            .update_xaxes(visible=False).update_yaxes(visible=False)
+
 
         #     raise NotImplementedError()
         #
@@ -126,6 +141,7 @@ def compare_gaussian_classifiers():
         #
         # # Add `X` dots specifying fitted Gaussians' means
         # raise NotImplementedError()
+
         #
         # # Add ellipses depicting the covariances of the fitted Gaussians
         # raise NotImplementedError()
