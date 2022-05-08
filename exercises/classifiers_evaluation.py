@@ -111,7 +111,7 @@ def compare_gaussian_classifiers():
         # Plot a figure with two suplots, showing the Gaussian Naive Bayes predictions on the left and LDA predictions
         # on the right. Plot title should specify dataset used and subplot titles should specify algorithm and accuracy
         # Create subplots
-        fig = make_subplots(rows=1, cols=2, subplot_titles=[rf"$\textbf{{{m}}}  Accuracy: {round(accuracy(y, pred), 2)}$"
+        fig = make_subplots(rows=1, cols=2, subplot_titles=[f"$\\textbf{{{m}}}  Accuracy: {round(accuracy(y, pred), 2)}$"
                                                             for m, pred in zip(model_names, predictions)],
                             horizontal_spacing=0.01, vertical_spacing=.03)
         for i, m in enumerate(models):
@@ -128,24 +128,10 @@ def compare_gaussian_classifiers():
         fig.update_layout(title=rf"$\textbf{{{f} Dataset}}$",
                           margin=dict(t=100)) \
             .update_xaxes(visible=False).update_yaxes(visible=False)
-
-
-        #     raise NotImplementedError()
-        #
-        # raise NotImplementedError()
-        #
-        # # Add traces for data-points setting symbols and colors
-        # raise NotImplementedError()
-        #
-        # # Add `X` dots specifying fitted Gaussians' means
-        # raise NotImplementedError()
-
-        #
-        # # Add ellipses depicting the covariances of the fitted Gaussians
-        # raise NotImplementedError()
+        fig.update(layout_showlegend=False)
         fig.show()
 
 if __name__ == '__main__':
     np.random.seed(0)
-    # run_perceptron()
+    run_perceptron()
     compare_gaussian_classifiers()
