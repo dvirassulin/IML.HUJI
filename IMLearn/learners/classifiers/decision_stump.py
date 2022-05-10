@@ -110,7 +110,7 @@ class DecisionStump(BaseEstimator):
             apply_threshold = lambda x: sign if x >= cur_threshold else -sign
             prediction = np.array([apply_threshold(xi) for xi in values])
             prediction_result = prediction * labels
-            misclass_error = (np.where(prediction_result < 0, prediction_result, 0)).sum()
+            misclass_error = (np.where(prediction_result < 0, -prediction_result, 0)).sum()
             if misclass_error < thr_err:
                 thr_err = misclass_error
                 thr = cur_threshold
