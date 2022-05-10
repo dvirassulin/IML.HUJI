@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Tuple, NoReturn
 from ...base import BaseEstimator
 import numpy as np
+from ...metrics.loss_functions import misclassification_error
 from itertools import product
 
 
@@ -134,4 +135,4 @@ class DecisionStump(BaseEstimator):
             Performance under missclassification loss function
         """
         prediction = self._predict(X)
-        return ((prediction * y) == -1).sum() / y.shape[0]
+        return misclassification_error(y, prediction)
