@@ -54,21 +54,21 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
         adaboost.fit(train_X, train_y)
         serialize_and_save_model(adaboost, json_file_name)
 
-    # train_error = np.array([adaboost.partial_loss(train_X, train_y, i) for i in range(1, n_learners + 1)])
-    # test_error = np.array([adaboost.partial_loss(test_X, test_y, i) for i in range(1, n_learners + 1)])
-    # x_axis = [i for i in range(1, n_learners + 1)]
+    train_error = np.array([adaboost.partial_loss(train_X, train_y, i) for i in range(1, n_learners + 1)])
+    test_error = np.array([adaboost.partial_loss(test_X, test_y, i) for i in range(1, n_learners + 1)])
+    x_axis = [i for i in range(1, n_learners + 1)]
 
-    # fig1 = go.Figure([go.Scatter(x=x_axis, y=train_error, name="Train error", showlegend=True,
-    #                             marker=dict(color="blue", opacity=.7),
-    #                             line=dict(color="blue", width=2))],
-    #                 layout=go.Layout(title=rf"$\textbf{{(1) Loss as function of number of learners with noise {noise}}}$",
-    #                                  xaxis={"title": "number of learners"},
-    #                                  yaxis={"title": "loss"},
-    #                                  height=400))
-    # fig1.add_trace(go.Scatter(x=x_axis, y=test_error, name="Test error", showlegend=True,
-    #                             marker=dict(color="orange", opacity=.7),
-    #                             line=dict(color="orange", width=2)))
-    # fig1.show()
+    fig1 = go.Figure([go.Scatter(x=x_axis, y=train_error, name="Train error", showlegend=True,
+                                marker=dict(color="blue", opacity=.7),
+                                line=dict(color="blue", width=2))],
+                    layout=go.Layout(title=rf"$\textbf{{(1) Loss as function of number of learners with noise {noise}}}$",
+                                     xaxis={"title": "number of learners"},
+                                     yaxis={"title": "loss"},
+                                     height=400))
+    fig1.add_trace(go.Scatter(x=x_axis, y=test_error, name="Test error", showlegend=True,
+                                marker=dict(color="orange", opacity=.7),
+                                line=dict(color="orange", width=2)))
+    fig1.show()
 
     # Question 2: Plotting decision surfaces
     T = [5, 50, 100, 250]
@@ -104,17 +104,17 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
         fig3.show()
 
     # Question 4: Decision surface with weighted samples
-    # fig4 = make_subplots(rows=1, cols=1, subplot_titles=[rf"$\textbf{{{adaboost.iterations_} learners}}$"],
-    #                      horizontal_spacing=0.05, vertical_spacing=.15)
-    # fig4.add_traces([decision_surface(adaboost.predict, lims[0], lims[1], showscale=False),
-    #                  go.Scatter(x=train_X[:, 0], y=train_X[:, 1], mode="markers", showlegend=False,
-    #                             marker=dict(color=train_y, colorscale=[custom[0], custom[-1]],
-    #                                         line=dict(color="black", width=1),
-    #                                         size=(adaboost.D_ / np.max(adaboost.D_)) * 5))],
-    #                 rows=1, cols=1)
-    # fig4.update_layout(title=rf"$\textbf{{(4) Decision Boundaries With Weighted Samples - {noise} Noise}}$", margin=dict(t=100)) \
-    #     .update_xaxes(visible=False).update_yaxes(visible=False)
-    # fig4.show()
+    fig4 = make_subplots(rows=1, cols=1, subplot_titles=[rf"$\textbf{{{adaboost.iterations_} learners}}$"],
+                         horizontal_spacing=0.05, vertical_spacing=.15)
+    fig4.add_traces([decision_surface(adaboost.predict, lims[0], lims[1], showscale=False),
+                     go.Scatter(x=train_X[:, 0], y=train_X[:, 1], mode="markers", showlegend=False,
+                                marker=dict(color=train_y, colorscale=[custom[0], custom[-1]],
+                                            line=dict(color="black", width=1),
+                                            size=(adaboost.D_ / np.max(adaboost.D_)) * 5))],
+                    rows=1, cols=1)
+    fig4.update_layout(title=rf"$\textbf{{(4) Decision Boundaries With Weighted Samples - {noise} Noise}}$", margin=dict(t=100)) \
+        .update_xaxes(visible=False).update_yaxes(visible=False)
+    fig4.show()
 
 
 def serialize_and_save_model(adaboost, json_name):
