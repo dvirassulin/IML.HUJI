@@ -139,4 +139,4 @@ def deserialize_model(iterations):
 
 if __name__ == '__main__':
     np.random.seed(0)
-    fit_and_evaluate_adaboost(0, n_learners=50)
+    fit_and_evaluate_adaboost(0, n_learners=250)
