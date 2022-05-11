@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Tuple, NoReturn
 from ...base import BaseEstimator
 import numpy as np
+from math import isclose
 from ...metrics.loss_functions import misclassification_error
 from itertools import product
 
@@ -21,6 +22,7 @@ class DecisionStump(BaseEstimator):
     self.sign_: int
         The label to predict for samples where the value of the j'th feature is about the threshold
     """
+
     def __init__(self) -> DecisionStump:
         """
         Instantiate a Decision stump classifier
@@ -44,9 +46,13 @@ class DecisionStump(BaseEstimator):
         error = 1
         for j in range(X.shape[1]):
             xj = X[:, j]
+            sorted_indices = np.argsort(xj, axis=0)
+            sorted_xj = np.take_along_axis(xj, sorted_indices, axis=0)
+            sorted_y = np.take_along_axis(y, sorted_indices, axis=0)
             for sign in [-1, 1]:
-                thr, thr_err = self._find_threshold(xj, y, sign)
+                thr, thr_err = self._find_threshold(sorted_xj, sorted_y, sign)
                 if thr_err < error:
+                    error = thr_err
                     self.j_, self.sign_, self.threshold_ = j, sign, thr
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
@@ -72,7 +78,7 @@ class DecisionStump(BaseEstimator):
         to or above the threshold are predicted as `sign`
         """
         xj = X[:, self.j_]
-        return self.sign_ if xj >= self.threshold_ else -self.sign_
+        return np.array([self.sign_ if val >= self.threshold_ else -self.sign_ for val in xj])
 
     def _find_threshold(self, values: np.ndarray, labels: np.ndarray, sign: int) -> Tuple[float, float]:
         """
@@ -104,18 +110,18 @@ class DecisionStump(BaseEstimator):
         For every tested threshold, values strictly below threshold are predicted as `-sign` whereas values
         which equal to or above the threshold are predicted as `sign`
         """
-        thr = values[0]
-        thr_err = values.shape[0]
-        for i in range(values.shape[0]):
-            cur_threshold = values[i]
-            apply_threshold = lambda x: sign if x >= cur_threshold else -sign
-            prediction = np.array([apply_threshold(xi) for xi in values])
-            prediction_result = prediction * labels
-            misclass_error = (np.where(prediction_result < 0, -prediction_result, 0)).sum()
-            if misclass_error < thr_err:
-                thr_err = misclass_error
-                thr = cur_threshold
-        return thr, thr_err / labels.shape[0]
+        all_y_values = np.tri(len(labels)).T
+        all_y_values = np.where(all_y_values > 0, sign, -sign)
+        true_y_values = np.array([labels for i in range(len(values))])
+        thr_err = all_y_values * true_y_values
+        thr_err = np.where(thr_err < 0, -thr_err, 0)
+        thr_err = thr_err.sum(axis=1)
+        min_err_ind = np.unravel_index(np.argmin(thr_err), thr_err.shape)
+        min_err = thr_err[min_err_ind]
+        min_thr = values[min_err_ind]
+        if min_err_ind == 0:
+            min_thr = float('-inf')
+        return min_thr, min_err
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """

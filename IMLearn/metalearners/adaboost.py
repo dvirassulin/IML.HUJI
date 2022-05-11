@@ -49,15 +49,18 @@ class AdaBoost(BaseEstimator):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        self.D_ = np.array([1 / y.shape[0]] * y.shape[0])
+        self.models_ = np.array([self.wl_() for i in range(self.iterations_)])
+        self.weights_ = np.zeros(self.iterations_)
+        self.D_ = np.array([1 / len(y)] * len(y))
         for t in range(self.iterations_):
-            model = self.wl_().fit(X, self.D_ * y)
-            self.models_.append(model)
-            prediction = model.predict(X)
-            epsilon = np.sum(np.where(np.sign(prediction) != np.sign(y), 1, 0) * self.D_)
-            w_t = 0.5 * np.log((1 / epsilon) - 1)
-            self.D_ = np.exp(-y * (w_t * prediction))
-            self.D_ = self.D_ / np.linalg.norm(self.D_)
+            self.models_[t].fit(X, y * self.D_)
+            prediction = self.models_[t].predict(X)
+            epsilon = (self.D_ * np.abs((prediction - y) / 2)).sum()
+            self.weights_[t] = 0.5 * np.log((1 / epsilon) - 1)
+            a = -y * self.weights_[t] * prediction
+            b = np.exp(a)
+            self.D_ *= b
+            self.D_ /= np.sum(self.D_)
 
     def _predict(self, X):
         """
@@ -112,9 +115,8 @@ class AdaBoost(BaseEstimator):
             Predicted responses of given samples
         """
         predictions = np.array([m.predict(X) for m in self.models_[:T]])
-        aggregated_prediction = np.array([p.sum() for p in predictions])
-        aggregated_prediction = np.where(aggregated_prediction == 0, 1, aggregated_prediction)  # randomly decide 0 is 1
-        return aggregated_prediction
+        aggregated_prediction = np.array([p * w for p, w in zip(predictions, self.weights_[:T])]).sum(axis=0)
+        return np.sign(aggregated_prediction)
 
     def partial_loss(self, X: np.ndarray, y: np.ndarray, T: int) -> float:
         """
@@ -137,4 +139,5 @@ class AdaBoost(BaseEstimator):
             Performance under missclassification loss function
         """
         prediction = self.partial_predict(X, T)
-        return misclassification_error(y, prediction)
+        partial_loss = misclassification_error(y, prediction)
+        return partial_loss
