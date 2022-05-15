@@ -47,9 +47,9 @@ class DecisionStump(BaseEstimator):
         for j in range(X.shape[1]):
             xj = X[:, j]
             sorted_indices = np.argsort(xj, axis=0)
-            sorted_xj = np.concatenate([np.array([-np.inf]), np.take_along_axis(xj, sorted_indices, axis=0)])
-            sorted_y = np.take_along_axis(y, sorted_indices, axis=0)
+            sorted_xj = np.concatenate([[-np.inf], xj[sorted_indices], [np.inf]])
             for sign in [-1, 1]:
+                sorted_y = np.concatenate([[-sign], y[sorted_indices], [sign]])
                 thr, thr_err = self._find_threshold(sorted_xj, sorted_y, sign)
                 if thr_err < error:
                     error = thr_err

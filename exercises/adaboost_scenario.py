@@ -87,8 +87,8 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
         fig2.show()
 
     # Question 3: Decision surface of best performing ensemble
-    minimal_loss_ensemble_size_index = np.argmin(np.array([adaboost.partial_loss(test_X, test_y, t) for t in T]))
-    minimal_loss_ensemble_size = T[minimal_loss_ensemble_size_index]
+    losses = np.array([adaboost.partial_loss(test_X, test_y, t) for t in range(1, adaboost.iterations_ + 1)])
+    minimal_loss_ensemble_size = np.argmin(losses) + 1
     if noise == 0:
         fig3 = make_subplots(rows=1, cols=1, subplot_titles=[rf"$\textbf{{{minimal_loss_ensemble_size} learners}}$"],
                             horizontal_spacing=0.05, vertical_spacing=.15)
