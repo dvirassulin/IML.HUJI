@@ -40,7 +40,7 @@ def cross_validate(estimator: BaseEstimator, X: np.ndarray, y: np.ndarray,
     losses_validation = np.zeros(cv)
     losses_train = np.zeros(cv)
     folds_X = np.array_split(X, cv)
-    folds_y = np.array_split(X, cv)
+    folds_y = np.array_split(y, cv)
     for i in range(cv):
         folds_X_no_i = folds_X[:i] + folds_X[i+1:]
         folds_y_no_i = folds_y[:i] + folds_y[i+1:]
