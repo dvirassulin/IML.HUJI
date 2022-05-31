@@ -45,14 +45,8 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
     (train_X, train_y), (test_X, test_y) = generate_data(train_size, noise), generate_data(test_size, noise)
 
     # Question 1: Train- and test errors of AdaBoost in noiseless case
-    json_file_name = f'fitted_adaboost_{n_learners}_noise_{noise}.json'
-    if exists(json_file_name): # if we have a fitted model to load
-       adaboost = deserialize_model(json_file_name)
-    else:
-        # regular case - we want to train
-        adaboost = AdaBoost(DecisionStump, n_learners)
-        adaboost.fit(train_X, train_y)
-        serialize_and_save_model(adaboost, json_file_name)
+    adaboost = AdaBoost(DecisionStump, n_learners)
+    adaboost.fit(train_X, train_y)
 
     train_error = np.array([adaboost.partial_loss(train_X, train_y, i) for i in range(1, n_learners + 1)])
     test_error = np.array([adaboost.partial_loss(test_X, test_y, i) for i in range(1, n_learners + 1)])
