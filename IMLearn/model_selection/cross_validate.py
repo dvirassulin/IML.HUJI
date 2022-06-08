@@ -42,11 +42,11 @@ def cross_validate(estimator: BaseEstimator, X: np.ndarray, y: np.ndarray,
     folds_X = np.array_split(X, cv)
     folds_y = np.array_split(y, cv)
     for i in range(cv):
-        folds_X_no_i = folds_X[:i] + folds_X[i+1:]
-        folds_y_no_i = folds_y[:i] + folds_y[i+1:]
-        estimator.fit(np.concatenate(folds_X_no_i), np.concatenate(folds_y_no_i))
+        folds_X_no_i = np.concatenate(folds_X[:i] + folds_X[i+1:])
+        folds_y_no_i = np.concatenate(folds_y[:i] + folds_y[i+1:])
+        estimator.fit(folds_X_no_i, folds_y_no_i)
         losses_validation[i] = scoring(estimator.predict(folds_X[i]), folds_y[i])
-        losses_train[i] = scoring(estimator.predict(folds_X[i]), folds_y[i])
+        losses_train[i] = scoring(estimator.predict(folds_X_no_i), folds_y_no_i)
     return np.average(losses_train), np.average(losses_validation)
 
 

@@ -1,5 +1,8 @@
 from __future__ import annotations
 from typing import NoReturn
+
+import sklearn.linear_model
+
 from ...base import BaseEstimator, BaseModule
 from ...desent_methods.gradient_descent import GradientDescent
 import numpy as np
